@@ -5,7 +5,8 @@ def get_c25():
            "LUN", "NETS", "NKT", "NB", "NN", "NO", "PAN", "TDC", "TRY", "VES", "WI", "OE"]
 
 def get_mail_list():
-    return["jacwar@um.dk", "frewar1905@gmail.com", "skou95@hotmail.com", "amrahbak@gmail.com","chrwar02@gmail.com"]
+    return["jacwar@um.dk", "frewar1905@gmail.com", "skou95@hotmail.com", "amrahbak@gmail.com","chrwar02@gmail.com",
+           "Johan.b.33@hotmail.com"]
 
 def get_plots_path():
     return "/Users/frederikwarburg/Desktop/stocks/plots"

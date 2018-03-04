@@ -60,7 +60,7 @@ def check_crossovers_c25(data):
 
             save_plt(plt, "{0}/deadcross{1}.png".format(get_plots_path(), stock_name.replace("/","")))
 
-            sell(stock_name, date)
+            sell(stock_name, date_of_dc)
 
         if days_since_gc == 1:
 
@@ -72,4 +72,4 @@ def check_crossovers_c25(data):
             save_plt(plt,
                        "{0}/goldencross{1}.png".format(get_plots_path(),stock_name.replace("/","")))
 
-            buy(stock_name, date)
+            buy(stock_name, date_of_gc)
