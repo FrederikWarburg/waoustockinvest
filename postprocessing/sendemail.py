@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from functions.Helper import *
+from helpers.helpers import get_mail_list, get_plots_path
 
 def buy(stock_name, date):
     fromaddr = "waoustockinvest@gmail.com"

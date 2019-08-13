@@ -1,7 +1,7 @@
 import numpy as np
-from functions.Helper import *
-from functions.sendemail import *
-from functions.plotter import *
+from helpers.helpers import get_stock_data, get_plots_path
+from helpers.plotter import plot_sma, save_plt, plot_last_x_days
+from postprocessing.sendemail import buy, sell
 
 def sma(price, window):
     if (len(price) - (window - 1)) > 0:
