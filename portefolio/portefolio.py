@@ -1,8 +1,8 @@
 
 class Portefolio:
     def __init__(self):
-
-        self.cash = 100000.0
+        self.start_cap = 1000000.0
+        self.cash = self.start_cap
         self.deposit = {}
         self.trade_cost = 29.0
 

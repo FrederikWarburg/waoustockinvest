@@ -1,15 +1,16 @@
 from dataset.dataset import Dataset
 from helpers.plotter import plot_sma
 from preprocessing.scraper import Scraper
-from models.SMA import days_since_last_deadcross, days_since_last_goldencross
+from models.SMA import SMA
 from portefolio.portefolio import Portefolio
 from models.market import Market
 import datetime
+from postprocessing.statistics import model_statistics
 
 def main():
 
-    name = "Ambu A/S"
-    start_date = '10/01/2016'
+    name = None
+    start_date = '10/01/2017'
 
     # download newest data
 
@@ -20,16 +21,23 @@ def main():
     #scraper.scrapeStockPrices()
 
     # Initialize
-    portefolio = Portefolio()
+    portefolio_baseline = Portefolio()
+    portefolio_sma = Portefolio()
+
     dataset = Dataset(name, start_date)
-    model = Market(portefolio)
+    model_baseline = Market(portefolio_baseline)
+    model_sma = SMA(portefolio_sma)
 
     while dataset.date < datetime.datetime.today():
         data = dataset.__next__()
-        model.update(data)
+        model_baseline.update(data)
+        model_sma.update(data)
 
-    print("success!")
-    print(portefolio.get_value(dataset.__all__()))
+    print("baseline model")
+    model_statistics(portefolio_baseline, dataset)
+
+    print("SMA model")
+    model_statistics(portefolio_sma, dataset)
 
     """
     stock = dataset.__all__()

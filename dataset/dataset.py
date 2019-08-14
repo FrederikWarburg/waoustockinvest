@@ -18,7 +18,9 @@ class Dataset:
 
         data = {}
         for stock in self.data:
-            data[stock] = self.data[stock][self.data[stock]['Date'] < date]
+            tmp = self.data[stock][self.data[stock]['Date'] < date]
+            if len(tmp) > 0:
+                data[stock] = tmp
         return data
 
     def __next__(self):

@@ -12,7 +12,6 @@ class Market(Model):
 
             price = cash/stocks - stocks*self.portefolio.trade_cost
             for stock in data:
-
                 amount = int(price / data[stock]['Close Price'].values[0])
                 self.portefolio.buy(stock, amount, data[stock]['Close Price'].values[0])
 
