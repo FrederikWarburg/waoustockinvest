@@ -106,11 +106,11 @@ class Scraper:
             html.close()
             p = soup.find('p', {'class': 'mod-tearsheet-profile-description mod-tearsheet-profile-section'})
             if p != None:
-                with open(self.data_path + '/Descriptions/{}.txt'.format(ticker.replace(":", "")),
+                with open(self.data_path + '/descriptions/{}.txt'.format(ticker.replace(":", "")),
                           'w') as export:
                     export.write(p.text)
             else:
-                with open(self.data_path + '/Descriptions/{}.txt'.format(ticker.replace(":", "")),
+                with open(self.data_path + '/descriptions/{}.txt'.format(ticker.replace(":", "")),
                           'w') as export:
                     export.write("Sorry - Missing description")
                 export.close()

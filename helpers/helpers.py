@@ -8,7 +8,7 @@ def get_plots_path():
     return "/Users/frederikwarburg/Desktop/stocks/plots"
 
 def get_stock_data():
-    data = pd.read_csv('/Users/frederikwarburg/Desktop/stockIDs.csv')
+    data = pd.read_csv('data/stockIDs.csv')
     ids = data["instrumentid"]
     names = data["instrumentname"]
     return names, ids
