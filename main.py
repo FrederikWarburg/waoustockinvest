@@ -28,7 +28,6 @@ def main():
     plt.show()
 
 
-
     """
     downloadStocks()
     data = loadStocks()
