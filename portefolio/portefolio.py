@@ -8,7 +8,8 @@ class Portefolio:
         self.cash = self.start_cap
         self.deposit = {}
         self.trade_cost = 29.0
-        self.internal_value = pd.DataFrame(columns = ['Date', 'Value'])
+        self.internal_value = pd.DataFrame(columns = ['data', 'value'])
+        self.trades = 0
 
     def get_value(self, data):
 
@@ -43,6 +44,8 @@ class Portefolio:
             else:
                 self.deposit[name] = (amount, price)
             self.cash -= amount*price + self.trade_cost
+            self.trades += 1
+
         else:
             print('Not enough cash')
 
@@ -53,9 +56,11 @@ class Portefolio:
         if self.deposit[name][0] == amount:
             del self.deposit[name]
             self.cash += amount * price - self.trade_cost
+            self.trades += 1
         elif amount < self.deposit[name][0]:
             self.deposit[name][0] -= amount
             self.cash += amount * price - self.trade_cost
+            self.trades += 1
         else:
             print('You do not own that many')
 

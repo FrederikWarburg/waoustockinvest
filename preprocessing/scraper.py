@@ -125,3 +125,14 @@ class Scraper:
             r = requests.get(link)
             with open(r"{0}/{1}.csv".format(self.data_path + '/prices', names[i].replace("/", "")), 'wb') as f:
                 f.write(r.content)
+
+    def scrapeMarketPrices(self):
+        ids = ['7165256','33222657']
+        names = ['S&P','c25']
+
+        for i in range(0, len(ids)):
+            print(i, "/", len(ids))
+            link = "http://euroinvestor.com/stock/historicalquotes.aspx?instrumentId={}&amp;format=CSV".format(ids[i])
+            r = requests.get(link)
+            with open(r"{0}/{1}.csv".format(self.data_path + '/markets', names[i].replace("/", "")), 'wb') as f:
+                f.write(r.content)

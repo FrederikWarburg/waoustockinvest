@@ -1,42 +1,54 @@
 import numpy as np
-from loadC25 import *
-
 import scipy.stats as stat
 
-def CAPM(stock):
-    # https://www.statistikbanken.dk/statbank5a/SelectVarVal/saveselections.asp
-    rf = 0.5
+from models.model import Model
 
-    stock_price = stock["Close Price"]
+class CAPM(Model):
+    # Ra = Expected return on a security
+    # Rf = Risk-free rate
+    # Rm = Return of the market
+    # beta = The beta of the security
+    # (Rm - Rrf) = Equity market premieum
+    def __init__(self, portefolio):
+        super(CAPM, self).__init__(portefolio)
 
-    market = loadc20()
-    market_price = market["Close Price"]
+        self.rf = 0.05 / 365.0 # 5 % per year risk free
+        self.purchase_size = 0.1
+        self.period = 10 # months
 
-    hist = len(stock_price)
-    stock_price_change = calc_day_change(stock_price)
-    market_price_change = calc_day_change(market_price[:hist])
+    def update(self, data, market):
 
-    #beta = np.cov(stock_price_change,market_price_change,ddof=0)/np.var(market_price_change)
+        market_price = market['c25']["Close Price"].values
+        market_price_change = self.calc_day_change(market_price)
+        rm = np.mean(market_price_change)
 
-    s = stat.linregress(market_price_change,stock_price_change)
+        for stock in data:
+            prices = data[stock]["Close Price"].values
 
-    rm = np.mean(market_price_change)
-    beta = s.slope
+            stock_price_change = self.calc_day_change(prices)
+            model = stat.linregress(market_price_change, stock_price_change)
 
-    return rf + beta*(rm-rf)
+            beta = model.slope
+            ra = self.rf + beta * (rm - self.rf) #linear correlation between risk and return
 
+            if ra > 0.3 / 10.0 :#.03 / 12.0 and ra < 0.50 / 12.0 :# and beta < 1.2: #buy
+                amount = int(self.purchase_size / prices[0])
 
-def calc_day_change(stock_price):
-    stock_price = np.array(stock_price)
-    change = stock_price[1:]/stock_price[:-1]-1
-    return change
+                if amount * prices[0] < self.portefolio.cash and stock not in self.portefolio.deposit:
+                    print("purchase ", stock, amount, prices[0])
+                    self.portefolio.buy(stock, amount, prices[0])
 
-#downloadc25()
-data = loadc25()
+            else: #sell
 
-for name in h.c25:
-#print("so good so fare")
-    stock = data[name]
-    print(CAPM(stock))
+                if stock in self.portefolio.deposit:
+
+                    amount = self.portefolio.deposit[stock][0]
+                    print("sell ", stock, amount, prices[0])
+                    self.portefolio.sell(stock, amount, prices[0])
+
+    def calc_day_change(self, price):
+        month_price = np.asarray([np.mean(price[i*30:(i+1)*30]) for i in range(self.period)])
+        change = (month_price[:-1] - month_price[1:])/month_price[1:]
+        return change
 
 

@@ -14,11 +14,14 @@ def main():
 
     # download newest data
 
-    #scraper = Scraper()
-    #scraper.scrapeStockId()
-    #scraper.scrapeStockTricker()
-    #scraper.scrapeStockDescription()
-    #scraper.scrapeStockPrices()
+    scraper = Scraper()
+    scraper.scrapeStockId()
+    scraper.scrapeStockTricker()
+    scraper.scrapeStockDescription()
+    scraper.scrapeStockPrices()
+    scraper.scrapeMarketPrices()
+
+    return
 
     # Initialize
     portefolio_baseline = Portefolio()
