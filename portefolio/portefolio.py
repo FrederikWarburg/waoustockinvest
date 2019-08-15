@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Portefolio:
     def __init__(self):
@@ -5,19 +8,25 @@ class Portefolio:
         self.cash = self.start_cap
         self.deposit = {}
         self.trade_cost = 29.0
+        self.internal_value = pd.DataFrame(columns = ['Date', 'Value'])
 
     def get_value(self, data):
 
         value = self.cash
         for stock in self.deposit:
             amount, purchase_price = self.deposit[stock]
-            current_price = data[stock]['Close Price'][0]
+            current_price = data[stock]['Close Price'].values[0]
             value += current_price * amount
 
         return value
 
     def get_deposit(self):
         return self.deposit
+
+    def update(self, date, data):
+
+        value = self.get_value(data)
+        self.internal_value = self.internal_value.append(pd.DataFrame(np.asarray([[date, value]]), columns = ['date','value']))
 
     def get_stock(self, name):
 
@@ -49,6 +58,13 @@ class Portefolio:
             self.cash += amount * price - self.trade_cost
         else:
             print('You do not own that many')
+
+    def plot_internal_val(self, label, col):
+        line_types = ['-','--','-.']
+        return plt.plot(self.internal_value['date'], self.internal_value['value'], line_types[np.random.randint(len(line_types))], color = col, label=label )
+
+
+
 
 
 

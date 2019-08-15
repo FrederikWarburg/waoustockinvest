@@ -22,3 +22,8 @@ def model_statistics(portefolio, dataset):
     print("Value ", round(value,2))
     print("Procent return ", round((value / portefolio.start_cap)*100 - 100,2))
     print()
+
+    return round((value / portefolio.start_cap)*100 - 100,2)
+
+
+

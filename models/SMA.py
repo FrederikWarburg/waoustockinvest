@@ -8,7 +8,7 @@ class SMA(Model):
     def __init__(self, portefolio):
         super(SMA, self).__init__(portefolio)
 
-        self.purchase_ratio = 1.0 # buy for 10 % for a golden cross
+        self.purchase_ratio = 0.1 # buy for 10 % for a golden cross
         self.purchase_size = self.purchase_ratio * self.portefolio.start_cap
 
     def update(self, data):
