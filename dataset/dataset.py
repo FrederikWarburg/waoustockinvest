@@ -44,25 +44,22 @@ class Dataset:
 
         data = {}
 
-        for company in self.lookup['instrumentname']:
+        for id in self.lookup['instrumentid']:
 
-            tmp = pd.read_csv(os.path.join(self.data_path, 'prices', company.replace("/", "") + '.csv'))
+            tmp = pd.read_csv(os.path.join(self.data_path, 'stocks', str(id) + '.csv'))
             date = tmp["Date"]
             date_f = []
             for i in range(len(date)):
                 date_f.append(pd.to_datetime(date[i][:10], format="%d/%m/%Y"))
             tmp["Date"] = date_f
             tmp = tmp.drop('Unnamed: 6', 1)
-            data.update({company: tmp})
+            data.update({id: tmp})
 
         return data
 
     def get_stock_lookup(self, specific_stock):
-        lookup = pd.read_csv(self.data_path + '/stockIDs.csv')
+        lookup = pd.read_csv(os.path.join(self.data_path,'lookup.csv'), sep=';')
         if specific_stock == None:
             return lookup
         else:
-            print(
-                lookup
-            )
             return lookup[lookup['instrumentname'] == specific_stock]

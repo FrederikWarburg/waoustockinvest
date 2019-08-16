@@ -66,7 +66,8 @@ class Portefolio:
 
     def plot_internal_val(self, label, col):
         line_types = ['-','--','-.']
-        return plt.plot(self.internal_value['date'], self.internal_value['value'], line_types[np.random.randint(len(line_types))], color = col, label=label )
+        colors = ['r','b','g','k','c','y']
+        return plt.plot(self.internal_value['date'], self.internal_value['value'], line_types[np.random.randint(len(line_types))], color = colors[col%len(colors)], label=label )
 
 
 

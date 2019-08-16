@@ -15,9 +15,7 @@ def main():
     # download newest data
 
     scraper = Scraper()
-    scraper.scrapeStockId()
-    scraper.scrapeStockTricker()
-    scraper.scrapeStockDescription()
+    scraper.scrapeStockLookup()
     scraper.scrapeStockPrices()
     scraper.scrapeMarketPrices()
 

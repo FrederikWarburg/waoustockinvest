@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import urllib.request
 import csv
 import pandas as pd
-from helpers.helpers import get_stock_data
 import os
 import requests
 
@@ -11,10 +10,20 @@ class Scraper:
 
         self.data_path = 'data'
 
-        if not os.path.isdir(self.data_path + '/descriptions'): os.mkdir(self.data_path + '/descriptions')
-        if not os.path.isdir(self.data_path + '/prices'): os.mkdir(self.data_path + '/prices')
+        if not os.path.isdir(self.data_path + '/stocks'): os.mkdir(self.data_path + '/stocks')
+        if not os.path.isdir(self.data_path + '/markets'): os.mkdir(self.data_path + '/markets')
 
-    def scrapeStockId(self):
+    def scrapeStockLookup(self):
+
+        data = self.scrapeStockIds()
+        data = self.scrapeStockTickers(data)
+        data = self.scrapeStockDescriptions(data)
+
+        data.to_csv(os.path.join(self.data_path, 'lookup.csv'), sep = ';')
+
+    def scrapeStockIds(self):
+
+        data = pd.DataFrame(columns=['instrumentid', 'instrumentname'])
 
         indexs = ["http://www.euroinvestor.dk/markeder/aktier/europa/danmark/omx-c25"]
 
@@ -46,84 +55,79 @@ class Scraper:
                   "http://www.euroinvestor.dk/markeder/aktier/nordamerika/usa/sp-500"]"""
 
 
-        with open('data/stockIDs.csv', 'w') as export:
-            export.write('instrumentid,instrumentname\n')
+        for index in indexs:
+            html = urllib.request.urlopen(index)
+            soup = BeautifulSoup(html, "lxml")
+            html.close()
 
-            for index in indexs:
-                html = urllib.request.urlopen(index)
-                soup = BeautifulSoup(html, "lxml")
-                html.close()
+            ids = soup.find_all('img', id="imgContextMenu")
+            for id in ids:
+                data = data.append(pd.DataFrame([[id['instrumentname'].replace(',',''),id['instrumentid']]], columns = ['instrumentname','instrumentid']))
 
-                ids = soup.find_all('img', id="imgContextMenu")
-                for id in ids:
-                    export.write('{1},{0}\n'.format(id['instrumentname'].replace(',',''),id['instrumentid']))
+        return data.reset_index(drop=True)
 
-    def scrapeStockTricker(self):
+    def scrapeStockTickers(self, data):
 
-        data = pd.read_csv('data/stockIDs.csv')
-        ids = data["instrumentid"]
-        names = data["instrumentname"]
+        tickers = []
+        for i, name in enumerate(data["instrumentname"]):
+            searchname = name.replace("Ø", "o")
+            searchname = searchname.lower()
+            searchname = searchname.replace("æ", "ae").replace(" b ", " ") \
+                .replace(" a ", " ").replace("a.p.", "ap").replace("å", "aa").replace("a/s b", "a/s") \
+                .replace("ø", "oe").replace("a/s a", "a/s").replace(" ", "+").replace("ó", "o").replace("ö", "o") \
+                .replace("ü", "u").replace("pr&#2", "").replace("+og+", "+&+").replace("ser", "").replace("brdr",
+                                                                                                          "broedr") \
+                .replace("sjaelland-fyn+a/s", "sjaelland").replace("plc+a", "plc").replace("capital+a/s+stam",
+                                                                                           "capital+a/s") \
+                .replace("dlh+a/s", "dlh").replace("+se", "").replace("+ab+b", "+ab") \
+                .replace("+ab+pref", "+ab").replace("+ab+a", " ab").replace("ab+pr", "ab")
 
-        with open('data/Tickers.csv', 'w') as export:
-            export.write('instrumentid,instrumentname, Trickers\n')
-            i = 0
-            for name in names:
-                print(name)
-                searchname = name.replace("Ø", "o")
-                searchname = searchname.lower()
-                searchname = searchname.replace("æ", "ae").replace(" b ", " ") \
-                    .replace(" a ", " ").replace("a.p.", "ap").replace("å", "aa").replace("a/s b", "a/s") \
-                    .replace("ø", "oe").replace("a/s a", "a/s").replace(" ", "+").replace("ó", "o").replace("ö", "o") \
-                    .replace("ü", "u").replace("pr&#2", "").replace("+og+", "+&+").replace("ser", "").replace("brdr",
-                                                                                                              "broedr") \
-                    .replace("sjaelland-fyn+a/s", "sjaelland").replace("plc+a", "plc").replace("capital+a/s+stam",
-                                                                                               "capital+a/s") \
-                    .replace("dlh+a/s", "dlh").replace("+se", "").replace("+ab+b", "+ab") \
-                    .replace("+ab+pref", "+ab").replace("+ab+a", " ab").replace("ab+pr", "ab")
+            link = "https://markets.ft.com/data/search?assetClass=Equity&query={}".format(searchname)
+            html = urllib.request.urlopen(link)
+            soup = BeautifulSoup(html, "lxml")
+            html.close()
+            ticker = soup.find_all('td', {'class': 'mod-ui-table__cell--text'})
 
-                link = "https://markets.ft.com/data/search?assetClass=Equity&query={}".format(searchname)
-                html = urllib.request.urlopen(link)
-                soup = BeautifulSoup(html, "lxml")
-                html.close()
-                ticker = soup.find_all('td', {'class': 'mod-ui-table__cell--text'})
-                if len(ticker) > 0:
-                    ticker = ticker[1].text
-                else:
-                    print(name, searchname, ticker)
+            if len(ticker) > 0:
+                ticker = ticker[1].text
+            else:
+                print("ERROR with TICKER", name, searchname, ticker)
+                ticker = ''
 
-                export.write('{1},{0},{2}\n'.format(name, ids[i], ticker))
-                i = i + 1
+            tickers.append(ticker)
 
-    def scrapeStockDescription(self):
+        data['ticker'] = tickers
 
-        data = pd.read_csv(self.data_path + '/Tickers.csv')
-        tickers = data[" Trickers"]
+        return data
 
-        for ticker in tickers:
+    def scrapeStockDescriptions(self, data):
+
+        descriptions = []
+
+        for ticker in data["ticker"]:
             link = "https://markets.ft.com/data/equities/tearsheet/profile?s={}".format(ticker.replace(" ", "%20"))
             html = urllib.request.urlopen(link)
             soup = BeautifulSoup(html, "lxml")
             html.close()
             p = soup.find('p', {'class': 'mod-tearsheet-profile-description mod-tearsheet-profile-section'})
             if p != None:
-                with open(self.data_path + '/descriptions/{}.txt'.format(ticker.replace(":", "")),
-                          'w') as export:
-                    export.write(p.text)
+                descriptions.append(p.text.replace(';','.'))
             else:
-                with open(self.data_path + '/descriptions/{}.txt'.format(ticker.replace(":", "")),
-                          'w') as export:
-                    export.write("Sorry - Missing description")
-                export.close()
+                descriptions.append("Sorry - Missing description")
                 print("Missing description on {}".format(ticker))
 
-    def scrapeStockPrices(self):
-        names, ids = get_stock_data()
+        data['description'] = descriptions
 
-        for i in range(0, len(ids)):
-            print(i, "/", len(ids))
-            link = "http://euroinvestor.com/stock/historicalquotes.aspx?instrumentId={}&amp;format=CSV".format(ids[i])
+        return data
+
+    def scrapeStockPrices(self):
+        lookup = pd.read_csv(os.path.join(self.data_path,'lookup.csv'),sep = ';')
+
+        for i, id in enumerate(lookup['instrumentid']):
+            print(i, "/", len(lookup['instrumentid']))
+            link = "http://euroinvestor.com/stock/historicalquotes.aspx?instrumentId={}&amp;format=CSV".format(id)
             r = requests.get(link)
-            with open(r"{0}/{1}.csv".format(self.data_path + '/prices', names[i].replace("/", "")), 'wb') as f:
+            with open(r"{0}/{1}.csv".format(self.data_path + '/stocks', id), 'wb') as f:
                 f.write(r.content)
 
     def scrapeMarketPrices(self):

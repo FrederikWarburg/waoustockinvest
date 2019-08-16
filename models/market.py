@@ -5,7 +5,7 @@ class Market(Model):
         super(Market, self).__init__(portefolio)
         self.day = 0
 
-    def update(self, data):
+    def update(self, data, market_data = None):
         if self.day == 0:
             cash = self.portefolio.cash
             stocks = float(len(data))

@@ -11,7 +11,7 @@ class SMA(Model):
         self.purchase_ratio = 0.1 # buy for 10 % for a golden cross
         self.purchase_size = self.purchase_ratio * self.portefolio.start_cap
 
-    def update(self, data):
+    def update(self, data, market_data = None):
 
         for stock in data:
 
