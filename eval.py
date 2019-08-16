@@ -17,7 +17,7 @@ def main():
 
     name = None
     start_dates = ['01/01/2016','01/01/2017','01/01/2018','01/01/2019']
-    models = ['MARKET','SMA','CAPM']
+    models = ['MARKET','PROPHET','SMA']#,'CAPM']
     summary_dict = {}
     model_dict = {}
 

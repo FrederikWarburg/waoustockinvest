@@ -26,6 +26,7 @@ class SMA(Model):
 
                 if amount * prices[0] < self.portefolio.cash and stock not in self.portefolio.deposit:
                     print("purchase ", stock, amount, prices[0])
+
                     self.portefolio.buy(stock, amount, prices[0])
 
             # dead cross
