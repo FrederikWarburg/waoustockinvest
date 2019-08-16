@@ -31,7 +31,7 @@ class CAPM(Model):
             beta = model.slope
             ra = self.rf + beta * (rm - self.rf) #linear correlation between risk and return
 
-            if ra > self.rf:#.03 / 12.0 and ra < 0.50 / 12.0 :# and beta < 1.2: #buy
+            if ra > prices[0]:#self.rf:#.03 / 12.0 and ra < 0.50 / 12.0 :# and beta < 1.2: #buy
                 amount = int(self.purchase_size / prices[0])
 
                 if amount * prices[0] < self.portefolio.cash and stock not in self.portefolio.deposit:
